@@ -109,7 +109,13 @@ class NaiveBayes:
                 "Model must be trained before estimating class posteriors."
             )
         # TODO: Calculate posterior based on priors and conditional probabilities of the words
-        log_posteriors: torch.Tensor = None
+        log_posteriors: torch.Tensor = torch.zeros(len(self.class_priors))
+        for class_label in range(len(self.class_priors)):
+            log_prior = torch.log(self.class_priors[class_label])
+            conditional_prob = self.conditional_probabilities[class_label]
+            log_likelihood = torch.sum(feature*torch.log(conditional_prob))
+            log_posteriors[class_label] = log_prior + log_likelihood
+            
         return log_posteriors
 
     def predict(self, feature: torch.Tensor) -> int:
