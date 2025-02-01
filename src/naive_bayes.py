@@ -29,9 +29,12 @@ class NaiveBayes:
             delta (float): Smoothing parameter for Laplace smoothing.
         """
         # TODO: Estimate class priors and conditional probabilities of the bag of words 
-        self.class_priors = None
-        self.vocab_size = None # Shape of the probability tensors, useful for predictions and conditional probabilities
-        self.conditional_probabilities = None
+        num_examples = labels.shape[0]
+        class_counts = torch.bincount(labels)
+        self.class_priors = class_counts / num_examples
+        #self.class_priors = None
+        self.vocab_size = features.shape[1] # Shape of the probability tensors, useful for predictions and conditional probabilities
+        self.conditional_probabilities = self.estimate_conditional_probabilities(features, labels, delta)
         return
 
     def estimate_class_priors(self, labels: torch.Tensor) -> Dict[int, torch.Tensor]:
@@ -73,17 +76,20 @@ class NaiveBayes:
 
         for i in range(len(features)):
             bow = features[i,:]
-            label = labels[i]
+            label = labels[i].item()
 
-            if label in class_word_counts.keys():
+            if label in class_word_counts:
                 class_word_counts[label] += bow
             else:
                 class_word_counts[label] = bow
 
-        for keys,values in class_word_counts:
-            class_word_counts[keys] = (values+delta)/(delta *len(values) + values.sum())
+        conditional_probabilities = {}
+        for label, word_counts in class_word_counts.items():
+            total_words = word_counts.sum()
+            smoothed_probs = (word_counts + delta) / (total_words + delta * self.vocab_size)
+            conditional_probabilities[label] = smoothed_probs
 
-        return class_word_counts
+        return conditional_probabilities
 
     def estimate_class_posteriors(
         self,
