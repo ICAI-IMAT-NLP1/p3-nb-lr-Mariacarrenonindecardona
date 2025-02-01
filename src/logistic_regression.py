@@ -33,7 +33,29 @@ class LogisticRegression:
             None: The function updates the model weights in place.
         """
         # TODO: Implement gradient-descent algorithm to optimize logistic regression weights
-        return
+        dim: int = 0
+        dim = features.shape[1]
+
+        random_state: int = 0
+        random_state = 7
+
+        weights: torch.Tensor = torch.zeros(dim+1)
+        weights = self.initialize_parameters(dim, random_state)
+
+        for i in range(epochs):
+            features_with_bias = torch.cat([features, torch.ones(features.shape[0], 1)], dim=1)
+
+            pred = self.sigmoid(torch.matmul(features_with_bias,weights))
+            loss = self.binary_cross_entropy_loss(pred,labels)
+
+            gradient = torch.matmul(features_with_bias.T, (pred - labels)) / len(features_with_bias)
+            weights -= gradient*learning_rate
+
+            if (i+1)%10 == 0:
+                print(f"Epoch {i + 1}/{epochs}, Loss: {loss.item()}")
+
+        self.weights = weights
+        return weights
 
     def predict(self, features: torch.Tensor, cutoff: float = 0.5) -> torch.Tensor:
         """
@@ -85,7 +107,7 @@ class LogisticRegression:
         """
         torch.manual_seed(random_state)
         
-        params: torch.Tensor = None
+        params: torch.Tensor = torch.zeros(dim+1)
         
         return params
 
@@ -103,7 +125,8 @@ class LogisticRegression:
         Returns:
             torch.Tensor: The sigmoid of z.
         """
-        result: torch.Tensor = None
+        result: torch.Tensor = torch.zeros(len(z))
+        result = 1/(1+torch.exp(-z))
         return result
 
     @staticmethod
@@ -123,7 +146,11 @@ class LogisticRegression:
         Returns:
             torch.Tensor: The computed binary cross-entropy loss.
         """
-        ce_loss: torch.Tensor = None
+        ce_loss: torch.Tensor = torch.zeros(len(predictions))
+        n: int = 0
+        
+        N = len(predictions)
+        ce_loss = (-1/N)*sum(targets*torch.log(predictions)+(1-targets)*torch.log(1-predictions))
         return ce_loss
 
     @property
