@@ -92,4 +92,30 @@ def evaluate_classification(predictions: torch.Tensor, labels: torch.Tensor) -> 
     """
     metrics: Dict[str, float] = None
 
+    true_positive: float = torch.sum((predictions == 1) & (labels == 1)).item()
+    false_positive: float = torch.sum((predictions == 1) & (labels == 0)).item()
+    false_negative: float = torch.sum((predictions == 0) & (labels == 1)).item()
+    true_negative: float = torch.sum((predictions == 0) & (labels == 0)).item()
+
+    # Accuracy: (TP+TN) / TOTAL
+    accuracy: float = (true_positive + true_negative) / len(labels)
+
+    # Precision: (TP / (TP + FP))
+    precision: float = true_positive / (true_positive + false_positive) if (true_positive + false_positive) > 0 else 0.0
+
+    # Recall: (TP / (TP + FN))
+    recall: float = true_positive / (true_positive + false_negative) if (true_positive + false_negative) > 0 else 0.0
+
+    # F1-Score: (2 * Precision * Recall / (Precision + Recall))
+    f1_score: float = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+
+    metrics: Dict[str, float] = {
+        'accuracy': accuracy,
+        'precision': precision,
+        'recall': recall,
+        'f1_score': f1_score
+    }
+
     return metrics
+
+

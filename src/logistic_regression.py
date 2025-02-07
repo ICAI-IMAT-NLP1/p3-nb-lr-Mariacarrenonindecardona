@@ -33,29 +33,23 @@ class LogisticRegression:
             None: The function updates the model weights in place.
         """
         # TODO: Implement gradient-descent algorithm to optimize logistic regression weights
-        dim: int = 0
-        dim = features.shape[1]
+        dim: int = features.shape[1]
 
-        random_state: int = 0
-        random_state = 7
-
-        weights: torch.Tensor = torch.zeros(dim+1)
-        weights = self.initialize_parameters(dim, random_state)
+        self.weights = self.initialize_parameters(dim, self.random_state)
 
         for i in range(epochs):
             features_with_bias = torch.cat([features, torch.ones(features.shape[0], 1)], dim=1)
 
-            pred = self.sigmoid(torch.matmul(features_with_bias,weights))
+            pred = self.predict_proba(features)
             loss = self.binary_cross_entropy_loss(pred,labels)
 
             gradient = torch.matmul(features_with_bias.T, (pred - labels)) / len(features_with_bias)
-            weights -= gradient*learning_rate
+            self.weights -= gradient*learning_rate
 
             if (i+1)%10 == 0:
                 print(f"Epoch {i + 1}/{epochs}, Loss: {loss.item()}")
 
-        self.weights = weights
-        return weights
+        return
 
     def predict(self, features: torch.Tensor, cutoff: float = 0.5) -> torch.Tensor:
         """
@@ -69,15 +63,7 @@ class LogisticRegression:
             torch.Tensor: Predicted class labels (0 or 1).
         """
    
-        bias_column = torch.ones(features.shape[0], 1)
-        features_with_bias = torch.cat((features, bias_column), dim=1)
-
-        # z = wx + b
-        z = torch.matmul(features_with_bias, self.weights)
-
-        # sigmoide
-        probabilities = 1 / (1 + torch.exp(-z))
-
+        probabilities = self.predict_proba(features)
         # clasificamos 
         decisions: torch.Tensor = (probabilities >= cutoff).to(torch.int)
         return decisions
@@ -99,7 +85,7 @@ class LogisticRegression:
             raise ValueError("Model not trained. Call the 'train' method first.")
         
         bias_column = torch.ones(features.shape[0], 1)
-        features_with_bias = torch.cat((features, bias_column), dim=1)
+        features_with_bias = torch.cat((features,bias_column), dim=1)
 
         z = torch.matmul(features_with_bias, self.weights)
         
@@ -123,7 +109,7 @@ class LogisticRegression:
         """
         torch.manual_seed(random_state)
         
-        params: torch.Tensor = torch.zeros(dim+1)
+        params: torch.Tensor = torch.randn(dim+1)
         
         return params
 

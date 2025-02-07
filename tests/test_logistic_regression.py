@@ -54,6 +54,7 @@ def test_train_logistic_regression():
 
     # Then, check if weights are updated
     assert model.weights is not None
+    print(model.weights)
     assert torch.allclose(model.weights, torch.tensor([0.2222, 0.0288, 0.4485, 0.2301], dtype=torch.float32), atol=1e-2)
 
 

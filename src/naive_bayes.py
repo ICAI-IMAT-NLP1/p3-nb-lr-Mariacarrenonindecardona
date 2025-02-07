@@ -115,6 +115,7 @@ class NaiveBayes:
             conditional_prob = self.conditional_probabilities[class_label]
             log_likelihood = torch.sum(feature*torch.log(conditional_prob))
             log_posteriors[class_label] = log_prior + log_likelihood
+        print(log_posteriors)
             
         return log_posteriors
 
