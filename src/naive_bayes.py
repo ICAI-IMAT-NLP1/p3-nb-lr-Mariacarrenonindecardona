@@ -31,8 +31,7 @@ class NaiveBayes:
         # TODO: Estimate class priors and conditional probabilities of the bag of words 
         num_examples = labels.shape[0]
         class_counts = torch.bincount(labels)
-        self.class_priors = class_counts / num_examples
-        #self.class_priors = None
+        self.class_priors = {i: class_counts[i].item() / num_examples for i in range(len(class_counts))}
         self.vocab_size = features.shape[1] # Shape of the probability tensors, useful for predictions and conditional probabilities
         self.conditional_probabilities = self.estimate_conditional_probabilities(features, labels, delta)
         return
@@ -110,8 +109,9 @@ class NaiveBayes:
             )
         # TODO: Calculate posterior based on priors and conditional probabilities of the words
         log_posteriors: torch.Tensor = torch.zeros(len(self.class_priors))
+        #log_posteriors:Dict[int, float] = {}
         for class_label in self.class_priors.keys():
-            log_prior = torch.log(self.class_priors[class_label])
+            log_prior = torch.log(torch.tensor(self.class_priors[class_label], dtype=torch.float32))
             conditional_prob = self.conditional_probabilities[class_label]
             log_likelihood = torch.sum(feature*torch.log(conditional_prob))
             log_posteriors[class_label] = log_prior + log_likelihood
@@ -131,9 +131,10 @@ class NaiveBayes:
         Raises:
             Exception: If the model has not been trained before calling this method.
         """
+
         if not self.class_priors or not self.conditional_probabilities:
             raise Exception("Model not trained. Please call the train method first.")
-        
+     
         # TODO: Calculate log posteriors and obtain the class of maximum likelihood 
         pred: int = -1
 
@@ -141,8 +142,8 @@ class NaiveBayes:
 
         pred = torch.argmax(log_posteriors).item()
 
-
         return pred
+    
 
     def predict_proba(self, feature: torch.Tensor) -> torch.Tensor:
         """
@@ -157,9 +158,10 @@ class NaiveBayes:
         Raises:
             Exception: If the model has not been trained before calling this method.
         """
+
         if not self.class_priors or not self.conditional_probabilities:
             raise Exception("Model not trained. Please call the train method first.")
-
+    
         # TODO: Calculate log posteriors and transform them to probabilities (softmax)
         probs: torch.Tensor = torch.zeros(len(self.class_priors))
 
