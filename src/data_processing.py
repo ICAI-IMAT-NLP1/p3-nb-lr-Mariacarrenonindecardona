@@ -50,7 +50,7 @@ def build_vocab(examples: List[SentimentExample]) -> Dict[str, int]:
     # TODO: Count unique words in all the examples from the training set
     vocab: Dict[str, int] = {}
 
-    index = 0
+    index: int = 0
 
     for example in examples:
         words = set(example.words)
@@ -82,7 +82,7 @@ def bag_of_words(
 
     for word in text:
         if word in vocab.keys():
-            index = vocab[word]
+            index: int = vocab[word]
             if binary:
                 # Here we only mark if the word appears or not
                 bow[index] = 1
