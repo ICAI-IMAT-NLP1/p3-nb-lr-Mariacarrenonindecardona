@@ -26,11 +26,13 @@ def read_sentiment_examples(infile: str) -> List[SentimentExample]:
     
     for line in lines:
         line = line.split("\t")
-        words = tokenize(line[0])
-        label = int(line[-1])
-
-        example = SentimentExample(words,label)
-        examples.append(example)
+        try:
+            words = tokenize(line[0])
+            label = int(line[-1])
+            example = SentimentExample(words,label)
+            examples.append(example)
+        except:
+            continue
 
     return examples
 

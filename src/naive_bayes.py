@@ -30,7 +30,7 @@ class NaiveBayes:
         """
         # TODO: Estimate class priors and conditional probabilities of the bag of words 
         num_examples = labels.shape[0]
-        class_counts = torch.bincount(labels)
+        class_counts = torch.bincount(labels.to(torch.int64))
         self.class_priors = {i: class_counts[i].item() / num_examples for i in range(len(class_counts))}
         self.vocab_size = features.shape[1] # Shape of the probability tensors, useful for predictions and conditional probabilities
         self.conditional_probabilities = self.estimate_conditional_probabilities(features, labels, delta)
