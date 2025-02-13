@@ -38,12 +38,12 @@ class LogisticRegression:
         self.weights = self.initialize_parameters(dim, self.random_state)
 
         for i in range(epochs):
-            features_with_bias = torch.cat([features, torch.ones(features.shape[0], 1)], dim=1)
+            features_with_bias: torch.Tensor = torch.cat([features, torch.ones(features.shape[0], 1)], dim=1)
 
-            pred = self.predict_proba(features)
-            loss = self.binary_cross_entropy_loss(pred,labels)
+            pred: torch.Tensor = self.predict_proba(features)
+            loss: torch.Tensor = self.binary_cross_entropy_loss(pred,labels)
 
-            gradient = torch.matmul(features_with_bias.T, (pred - labels)) / len(features_with_bias)
+            gradient: torch.Tensor = torch.matmul(features_with_bias.T, (pred - labels)) / len(features_with_bias)
             self.weights -= gradient*learning_rate
 
             if (i+1)%10 == 0:
@@ -63,7 +63,7 @@ class LogisticRegression:
             torch.Tensor: Predicted class labels (0 or 1).
         """
    
-        probabilities = self.predict_proba(features)
+        probabilities: torch.Tensor = self.predict_proba(features)
         # clasificamos 
         decisions: torch.Tensor = (probabilities >= cutoff).to(torch.int)
         return decisions
@@ -84,10 +84,10 @@ class LogisticRegression:
         if self.weights is None:
             raise ValueError("Model not trained. Call the 'train' method first.")
         
-        bias_column = torch.ones(features.shape[0], 1)
-        features_with_bias = torch.cat((features,bias_column), dim=1)
+        bias_column: torch.Tensor = torch.ones(features.shape[0], 1)
+        features_with_bias: torch.Tensor = torch.cat((features,bias_column), dim=1)
 
-        z = torch.matmul(features_with_bias, self.weights)
+        z: torch.Tensor = torch.matmul(features_with_bias, self.weights)
         
         probabilities: torch.Tensor =  1 / (1 + torch.exp(-z))
         
@@ -149,10 +149,9 @@ class LogisticRegression:
             torch.Tensor: The computed binary cross-entropy loss.
         """
         ce_loss: torch.Tensor = torch.zeros(len(predictions))
-        n: int = 0
         
-        N = len(predictions)
-        ce_loss = (-1/N)*sum(targets*torch.log(predictions)+(1-targets)*torch.log(1-predictions))
+        N: int = len(predictions)
+        ce_loss: torch.Tensor = (-1/N)*sum(targets*torch.log(predictions)+(1-targets)*torch.log(1-predictions))
         return ce_loss
 
     @property
